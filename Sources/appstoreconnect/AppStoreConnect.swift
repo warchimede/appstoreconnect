@@ -44,10 +44,10 @@ struct AppStoreConnect: ParsableCommand {
   }
 
   private static func sendRequest(_ request: URLRequest, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
-    AppStoreConnect.dispatchGroup?.enter()
+    dispatchGroup?.enter()
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
       defer {
-        AppStoreConnect.dispatchGroup?.leave()
+        dispatchGroup?.leave()
       }
 
       let statusCode = (response as? HTTPURLResponse)?.statusCode
