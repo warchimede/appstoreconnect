@@ -10,16 +10,17 @@ let package = Package(
         .executable(name: name, targets: [name])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.3.0"))
+        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.3.0")),
+        .package(url: "https://github.com/IBM-Swift/Swift-JWT.git", from: "3.6.1")
     ],
     targets: [
         .target(
             name: name,
-            dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
-            ]),
+            dependencies: [ "ArgumentParser", "SwiftJWT"]
+        ),
         .testTarget(
             name: "\(name)Tests",
-            dependencies: ["appstoreconnect"])
+            dependencies: ["appstoreconnect"]
+        )
     ]
 )
