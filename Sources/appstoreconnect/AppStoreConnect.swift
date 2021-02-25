@@ -4,6 +4,7 @@ import SwiftJWT
 
 struct AppStoreConnect: ParsableCommand {
   enum AppStoreConnectError: Error {
+    case cannotWriteProfile
     case invalidResponse(URLResponse?)
     case keyNotFound
     case invalidKeyData
