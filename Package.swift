@@ -3,20 +3,23 @@
 
 import PackageDescription
 
-let name = "appstoreconnect" 
+let name = "appstoreconnect"
 let package = Package(
     name: name,
     products: [
         .executable(name: name, targets: [name])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.3.0")),
-        .package(url: "https://github.com/IBM-Swift/Swift-JWT.git", from: "3.6.1")
+        .package(name: "swift-argument-parser", url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.3.0")),
+        .package(name: "SwiftJWT", url: "https://github.com/IBM-Swift/Swift-JWT.git", from: "3.6.1")
     ],
     targets: [
         .target(
             name: name,
-            dependencies: [ "ArgumentParser", "SwiftJWT"]
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SwiftJWT", package: "SwiftJWT")
+            ]
         ),
         .testTarget(
             name: "\(name)Tests",
