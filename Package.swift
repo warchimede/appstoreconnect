@@ -6,6 +6,7 @@ import PackageDescription
 let name = "appstoreconnect"
 let package = Package(
     name: name,
+    platforms: [.macOS(.v10_13)],
     products: [
         .executable(name: name, targets: [name])
     ],
