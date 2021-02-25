@@ -43,7 +43,7 @@ struct AppStoreConnect: ParsableCommand {
     return request
   }
 
-  private static func sendRequest(_ request: URLRequest, completion: @escaping (Result<Data, Error>) -> Void) {
+  private static func sendRequest(_ request: URLRequest, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
     AppStoreConnect.dispatchGroup?.enter()
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
       defer {
@@ -52,12 +52,12 @@ struct AppStoreConnect: ParsableCommand {
 
       let statusCode = (response as? HTTPURLResponse)?.statusCode
       guard statusCode == 200 else {
-        completion(.failure(error ?? AppStoreConnectError.invalidResponse(response)))
+        completion(.failure(.invalidResponse(response)))
         return
       }
 
       guard let data = data else {
-        completion(.failure(error ?? AppStoreConnectError.noDataReceived))
+        completion(.failure(.noDataReceived))
         return
       }
 
@@ -66,7 +66,7 @@ struct AppStoreConnect: ParsableCommand {
     task.resume()
   }
 
-  static func fetch(endpoint: Endpoint, options: Options, completion: @escaping (Result<Data, Error>) -> Void) {
+  static func fetch(endpoint: Endpoint, options: Options, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
     switch key(for: options.keyId) {
     case .failure(let error): completion(.failure(error))
     case .success(let key):
