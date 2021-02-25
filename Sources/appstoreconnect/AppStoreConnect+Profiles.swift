@@ -8,7 +8,12 @@ extension AppStoreConnect {
     @OptionGroup var options: AppStoreConnect.Options
 
     mutating func run() {
-      print("Download all the profiles !")
+      AppStoreConnect.fetch(endpoint: .profiles, options: options) { result in
+        switch result {
+        case .failure(let error): print("ERROR: \(error)")
+        case .success(let data): print(String(data: data, encoding: .utf8) ?? "Error: \(AppStoreConnectError.undecodableData)")
+        }
+      }
     }
   }
 }
