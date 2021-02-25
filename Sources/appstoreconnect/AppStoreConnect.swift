@@ -7,4 +7,6 @@ struct AppStoreConnect: ParsableCommand {
     abstract: "An interface App Store Connect API",
     subcommands: [Profiles.self, Users.self]
   )
+
+  static var dispatchGroup: DispatchGroup?
 }
