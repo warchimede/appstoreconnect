@@ -31,15 +31,14 @@ struct AppStoreConnect: ParsableCommand {
   }
 
   private static func createRequest(endpoint: Endpoint, key: Data, options: Options) -> URLRequest {
+    var request = URLRequest(url: endpoint.url)
     let header = Header(typ: "JWT", kid: options.keyId)
-    let signer = JWTSigner.es256(privateKey: key)
+    let signer = JWTSigner.es256(privateKey: key) // "Fatal error: invalid unsafeDowncast: file Swift/Builtin.swift, line 235" when building for release
     let claims = APIClaims(exp: Date(timeIntervalSinceNow: 3600), iss: options.issId)
     var jwt = JWT(header: header, claims: claims)
     let signedJWT = (try? jwt.sign(using: signer)) ?? ""
 
-    var request = URLRequest(url: endpoint.url)
     request.addValue("Bearer \(signedJWT)", forHTTPHeaderField: "Authorization")
-
     return request
   }
 
