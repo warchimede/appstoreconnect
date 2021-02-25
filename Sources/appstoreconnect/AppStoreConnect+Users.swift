@@ -1,6 +1,5 @@
 import ArgumentParser
 import Foundation
-import SwiftJWT
 
 extension AppStoreConnect {
   struct Users: ParsableCommand {
@@ -15,14 +14,7 @@ extension AppStoreConnect {
         return
       }
 
-      let header = Header(typ: "JWT", kid: options.keyId)
-      let signer = JWTSigner.es256(privateKey: key)
-      let claims = APIClaims(exp: Date(timeIntervalSinceNow: 3600), iss: options.issId)
-      var jwt = JWT(header: header, claims: claims)
-      let signedJWT = (try? jwt.sign(using: signer)) ?? ""
-
-      var request = URLRequest(url: Endpoint.users.url)
-      request.addValue("Bearer \(signedJWT)", forHTTPHeaderField: "Authorization")
+      let request = AppStoreConnect.request(endpoint: .users, key: key, keyId: options.keyId, issId: options.issId)
 
       AppStoreConnect.dispatchGroup?.enter()
       URLSession.shared.dataTask(with: request, completionHandler: { data, _, error in
