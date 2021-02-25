@@ -9,9 +9,7 @@ extension AppStoreConnect {
     @OptionGroup var options: AppStoreConnect.Options
 
     mutating func run() throws {
-      let keyFilePath = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.appstoreconnect/private_keys/AuthKey_\(options.keyId.uppercased()).p8"
-
-      guard FileManager.default.fileExists(atPath: keyFilePath), let key = FileManager.default.contents(atPath: keyFilePath)
+      guard let key = AppStoreConnect.key(for: options.keyId)
       else {
         print("ERROR Key data")
         return
