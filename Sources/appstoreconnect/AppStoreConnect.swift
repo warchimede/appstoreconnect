@@ -1,7 +1,6 @@
 import ArgumentParser
 import Foundation
 import JWTKit
-import SwiftJWT
 
 struct AppStoreConnect: ParsableCommand {
   enum AppStoreConnectError: Error {
@@ -35,7 +34,7 @@ struct AppStoreConnect: ParsableCommand {
   private static func createRequest(endpoint: Endpoint, key: Data, options: Options) -> URLRequest {
     var request = URLRequest(url: endpoint.url)
   
-    let signers = JWTKit.JWTSigners()
+    let signers = JWTSigners()
     try? signers.use(.es256(key: .private(pem: key)))
   
     let exp = ExpirationClaim(value: Date(timeIntervalSinceNow: 3600))
