@@ -1,13 +1,14 @@
 import ArgumentParser
 import Foundation
+import JWTKit
 import SwiftJWT
 
 struct AppStoreConnect: ParsableCommand {
   enum AppStoreConnectError: Error {
     case cannotWriteProfile
     case invalidResponse(URLResponse?)
-    case keyNotFound
     case invalidKeyData
+    case keyNotFound
     case noDataReceived
     case undecodableData
   }
@@ -33,11 +34,16 @@ struct AppStoreConnect: ParsableCommand {
 
   private static func createRequest(endpoint: Endpoint, key: Data, options: Options) -> URLRequest {
     var request = URLRequest(url: endpoint.url)
-    let header = Header(typ: "JWT", kid: options.keyId)
-    let signer = JWTSigner.es256(privateKey: key) // "Fatal error: invalid unsafeDowncast: file Swift/Builtin.swift, line 235" when building for release
-    let claims = APIClaims(exp: Date(timeIntervalSinceNow: 3600), iss: options.issId)
-    var jwt = JWT(header: header, claims: claims)
-    let signedJWT = (try? jwt.sign(using: signer)) ?? ""
+  
+    let signers = JWTKit.JWTSigners()
+    try? signers.use(.es256(key: .private(pem: key)))
+  
+    let exp = ExpirationClaim(value: Date(timeIntervalSinceNow: 3600))
+    let iss = IssuerClaim(value: options.issId)
+    let claims = ClaimsPayload(exp: exp, iss: iss)
+    let kid = JWKIdentifier(string: options.keyId)
+
+    let signedJWT = (try? signers.sign(claims, kid: kid)) ?? ""
 
     request.addValue("Bearer \(signedJWT)", forHTTPHeaderField: "Authorization")
     return request
