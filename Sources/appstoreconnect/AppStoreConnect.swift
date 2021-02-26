@@ -3,15 +3,6 @@ import Foundation
 import JWTKit
 
 struct AppStoreConnect: ParsableCommand {
-  enum AppStoreConnectError: Error {
-    case cannotWriteProfile
-    case invalidResponse(URLResponse?)
-    case invalidKeyData
-    case keyNotFound
-    case noDataReceived
-    case undecodableData
-  }
-
   static var configuration = CommandConfiguration(
     commandName: "appstoreconnect",
     abstract: "An interface App Store Connect API",
