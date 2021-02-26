@@ -12,7 +12,6 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "swift-argument-parser", url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.3.0")),
-        .package(name: "SwiftJWT", url: "https://github.com/IBM-Swift/Swift-JWT.git", from: "3.6.1"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0")
     ],
     targets: [
@@ -20,8 +19,7 @@ let package = Package(
             name: name,
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "SwiftJWT", package: "SwiftJWT"),
-                .product(name: "JWTKit", package: "jwt-kit"),
+                .product(name: "JWTKit", package: "jwt-kit")
             ]
         ),
         .testTarget(
