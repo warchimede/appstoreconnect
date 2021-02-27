@@ -5,7 +5,7 @@ import JWTKit
 struct AppStoreConnect: ParsableCommand {
   static var configuration = CommandConfiguration(
     commandName: "appstoreconnect",
-    abstract: "An interface App Store Connect API",
+    abstract: "An interface for the App Store Connect API",
     subcommands: [Profiles.self, Users.self]
   )
 

@@ -3,7 +3,7 @@ import Foundation
 
 extension AppStoreConnect {
   struct Profiles: ParsableCommand {
-    static var configuration = CommandConfiguration(abstract: "Download the provisioning profiles")
+    static var configuration = CommandConfiguration(abstract: "Download and install the provisioning profiles")
 
     @OptionGroup var options: AppStoreConnect.Options
 
