@@ -23,18 +23,14 @@ struct AppStoreConnect: ParsableCommand {
   }
 
   private static func createRequest(endpoint: Endpoint, key: Data, options: Options) -> URLRequest {
-    var request = URLRequest(url: endpoint.url)
-  
-    let signers = JWTSigners()
-    try? signers.use(.es256(key: .private(pem: key)))
-  
-    let exp = ExpirationClaim(value: Date(timeIntervalSinceNow: 3600))
+    let exp = ExpirationClaim(value: Date(timeIntervalSinceNow: 5 * 60))
     let iss = IssuerClaim(value: options.issId)
-    let claims = ClaimsPayload(exp: exp, iss: iss)
     let kid = JWKIdentifier(string: options.keyId)
-
-    let signedJWT = (try? signers.sign(claims, kid: kid)) ?? ""
-
+    let payload = ClaimsPayload(exp: exp, iss: iss)
+    let signer = try? JWTSigner.es256(key: ECDSAKey.private(pem: key))
+    let signedJWT = (try? signer?.sign(payload, kid: kid)) ?? ""
+    
+    var request = URLRequest(url: endpoint.url)
     request.addValue("Bearer \(signedJWT)", forHTTPHeaderField: "Authorization")
     return request
   }
