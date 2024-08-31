@@ -2,14 +2,13 @@ import ArgumentParser
 import Foundation
 import JWTKit
 
-struct AppStoreConnect: ParsableCommand {
+@main
+struct AppStoreConnect: AsyncParsableCommand {
   static var configuration = CommandConfiguration(
     commandName: "appstoreconnect",
     abstract: "An interface for the App Store Connect API",
     subcommands: [Profiles.self, Users.self]
   )
-
-  static var dispatchGroup: DispatchGroup?
 
   private static func key(for keyId: String) -> Result<Data, AppStoreConnectError> {
     let keyFilePath = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.appstoreconnect/private_keys/AuthKey_\(keyId.uppercased()).p8"
@@ -35,35 +34,27 @@ struct AppStoreConnect: ParsableCommand {
     return request
   }
 
-  private static func sendRequest(_ request: URLRequest, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
-    dispatchGroup?.enter()
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      defer {
-        dispatchGroup?.leave()
-      }
+  private static func sendRequest(_ request: URLRequest) async -> Result<Data, AppStoreConnectError> {
+    do {
+      let (data, response) = try await URLSession.shared.data(for: request)
 
       let statusCode = (response as? HTTPURLResponse)?.statusCode
       guard statusCode == 200 else {
-        completion(.failure(.invalidResponse(response)))
-        return
+        return .failure(.invalidResponse(response))
       }
 
-      guard let data = data else {
-        completion(.failure(.noDataReceived))
-        return
-      }
-
-      completion(.success(data))
+      return .success(data)
+    } catch {
+      return .failure(.noDataReceived)
     }
-    task.resume()
   }
 
-  static func fetch(endpoint: Endpoint, options: Options, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
+  static func fetch(endpoint: Endpoint, options: Options) async -> Result<Data, AppStoreConnectError> {
     switch key(for: options.keyId) {
-    case .failure(let error): completion(.failure(error))
+    case .failure(let error): return .failure(error)
     case .success(let key):
       let request = createRequest(endpoint: endpoint, key: key, options: options)
-      sendRequest(request, completion: completion)
+      return await sendRequest(request)
     }
   }
 }

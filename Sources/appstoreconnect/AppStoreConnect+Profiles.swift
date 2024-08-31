@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 extension AppStoreConnect {
-  struct Profiles: ParsableCommand {
+  struct Profiles: AsyncParsableCommand {
     static var configuration = CommandConfiguration(abstract: "Download and install the provisioning profiles")
 
     @OptionGroup var options: AppStoreConnect.Options
@@ -30,16 +30,16 @@ extension AppStoreConnect {
         }
     }
 
-    mutating func run() {
-      AppStoreConnect.fetch(endpoint: .profiles, options: options) { result in
-        switch result {
-        case .failure(let error): print("ERROR: \(error)")
-        case .success(let data):
-          do {
-            try Self.handleResponse(data: data)
-          } catch {
-            print("ERROR: \(error)")
-          }
+    mutating func run() async throws {
+      let result = await AppStoreConnect.fetch(endpoint: .profiles, options: options)
+
+      switch result {
+      case .failure(let error): print("ERROR: \(error)")
+      case .success(let data):
+        do {
+          try Self.handleResponse(data: data)
+        } catch {
+          print("ERROR: \(error)")
         }
       }
     }
