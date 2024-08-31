@@ -31,7 +31,7 @@ extension AppStoreConnect {
     }
 
     mutating func run() async throws {
-      let result = await AppStoreConnect.asyncFetch(endpoint: .profiles, options: options)
+      let result = await AppStoreConnect.fetch(endpoint: .profiles, options: options)
 
       switch result {
       case .failure(let error): print("ERROR: \(error)")

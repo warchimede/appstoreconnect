@@ -10,8 +10,6 @@ struct AppStoreConnect: AsyncParsableCommand {
     subcommands: [Profiles.self, Users.self]
   )
 
-  static var dispatchGroup: DispatchGroup?
-
   private static func key(for keyId: String) -> Result<Data, AppStoreConnectError> {
     let keyFilePath = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.appstoreconnect/private_keys/AuthKey_\(keyId.uppercased()).p8"
     guard FileManager.default.fileExists(atPath: keyFilePath)
@@ -36,39 +34,7 @@ struct AppStoreConnect: AsyncParsableCommand {
     return request
   }
 
-  private static func sendRequest(_ request: URLRequest, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
-    dispatchGroup?.enter()
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      defer {
-        dispatchGroup?.leave()
-      }
-
-      let statusCode = (response as? HTTPURLResponse)?.statusCode
-      guard statusCode == 200 else {
-        completion(.failure(.invalidResponse(response)))
-        return
-      }
-
-      guard let data = data else {
-        completion(.failure(.noDataReceived))
-        return
-      }
-
-      completion(.success(data))
-    }
-    task.resume()
-  }
-
-  static func fetch(endpoint: Endpoint, options: Options, completion: @escaping (Result<Data, AppStoreConnectError>) -> Void) {
-    switch key(for: options.keyId) {
-    case .failure(let error): completion(.failure(error))
-    case .success(let key):
-      let request = createRequest(endpoint: endpoint, key: key, options: options)
-      sendRequest(request, completion: completion)
-    }
-  }
-
-  private static func asyncSendRequest(_ request: URLRequest) async -> Result<Data, AppStoreConnectError> {
+  private static func sendRequest(_ request: URLRequest) async -> Result<Data, AppStoreConnectError> {
     do {
       let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -83,12 +49,12 @@ struct AppStoreConnect: AsyncParsableCommand {
     }
   }
 
-  static func asyncFetch(endpoint: Endpoint, options: Options) async -> Result<Data, AppStoreConnectError> {
+  static func fetch(endpoint: Endpoint, options: Options) async -> Result<Data, AppStoreConnectError> {
     switch key(for: options.keyId) {
     case .failure(let error): return .failure(error)
     case .success(let key):
       let request = createRequest(endpoint: endpoint, key: key, options: options)
-      return await asyncSendRequest(request)
+      return await sendRequest(request)
     }
   }
 }

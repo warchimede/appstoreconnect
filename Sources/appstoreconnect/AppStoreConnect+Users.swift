@@ -8,7 +8,7 @@ extension AppStoreConnect {
     @OptionGroup var options: AppStoreConnect.Options
 
     mutating func run() async throws {
-      let result = await AppStoreConnect.asyncFetch(endpoint: .users, options: options)
+      let result = await AppStoreConnect.fetch(endpoint: .users, options: options)
 
       let output = switch result {
       case .failure(let error): "ERROR: \(error)"
