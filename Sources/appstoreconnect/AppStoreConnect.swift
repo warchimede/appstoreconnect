@@ -2,7 +2,8 @@ import ArgumentParser
 import Foundation
 import JWTKit
 
-struct AppStoreConnect: ParsableCommand {
+@main
+struct AppStoreConnect: AsyncParsableCommand {
   static var configuration = CommandConfiguration(
     commandName: "appstoreconnect",
     abstract: "An interface for the App Store Connect API",
