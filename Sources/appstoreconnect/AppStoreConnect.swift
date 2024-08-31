@@ -67,4 +67,28 @@ struct AppStoreConnect: AsyncParsableCommand {
       sendRequest(request, completion: completion)
     }
   }
+
+  private static func asyncSendRequest(_ request: URLRequest) async -> Result<Data, AppStoreConnectError> {
+    do {
+      let (data, response) = try await URLSession.shared.data(for: request)
+
+      let statusCode = (response as? HTTPURLResponse)?.statusCode
+      guard statusCode == 200 else {
+        return .failure(.invalidResponse(response))
+      }
+
+      return .success(data)
+    } catch {
+      return .failure(.noDataReceived)
+    }
+  }
+
+  static func asyncFetch(endpoint: Endpoint, options: Options) async -> Result<Data, AppStoreConnectError> {
+    switch key(for: options.keyId) {
+    case .failure(let error): return .failure(error)
+    case .success(let key):
+      let request = createRequest(endpoint: endpoint, key: key, options: options)
+      return await asyncSendRequest(request)
+    }
+  }
 }
